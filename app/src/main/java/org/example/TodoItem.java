@@ -76,8 +76,7 @@ public class TodoItem {
                 int days = App.scanner.nextInt();
                 App.scanner.nextLine();
 
-                long date = new Date().getTime() + ((long) days * 24 * 60 * 60 * 1000);
-                setDueDate(date);
+                setDueDate(days);
             } catch (Exception e) {
                 System.out.println("Invalid. Try again.");
                 invalid = true;
@@ -104,8 +103,8 @@ public class TodoItem {
         return dueDate;
     }
 
-    public void setDueDate(long dueDate) {
-        this.dueDate = dueDate;
+    public void setDueDate(long days) {
+        this.dueDate = new Date().getTime() + ((long) days * 24 * 60 * 60 * 1000);
     }
 
     public Priority getPriority() {
