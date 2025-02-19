@@ -4,7 +4,11 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'todolist-app'
         DOCKER_TAG = 'latest'
-        COMPOSE_FILE = 'docker-compose.yml'
+        MYSQL_CONTAINER = 'mysql-todo'
+        MYSQL_ROOT_PASSWORD = 'root'
+        MYSQL_DATABASE = 'todo'
+        MYSQL_USER = 'todo'
+        MYSQL_PASSWORD = 'root'
     }
 
     stages {
@@ -14,24 +18,31 @@ pipeline {
             }
         }
 
-        stage('Start Services with Docker Compose') {
+        stage('Start MySQL Container') {
             steps {
                 script {
-                    sh "docker-compose -f $COMPOSE_FILE up -d"
-                    sleep 10  // Give MySQL some time to initialize
+                    sh """
+                    docker run -d --rm --name $MYSQL_CONTAINER \\
+                        -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \\
+                        -e MYSQL_USER=$MYSQL_USER \\
+                        -e MYSQL_PASSWORD=$MYSQL_PASSWORD \\
+                        -e MYSQL_DATABASE=$MYSQL_DATABASE \\
+                        -p 3306:3306 \\
+                        mysql:8.0
+                    sleep 10
+                    """
                 }
             }
         }
-
         stage('Build with Gradle') {
             steps {
-                sh './gradlew clean build'
+                sh 'gradle clean build'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh './gradlew test'
+                sh 'gradle test'
             }
         }
 
@@ -48,12 +59,15 @@ pipeline {
                 script {
                     sh "docker stop $DOCKER_IMAGE || true"
                     sh "docker rm $DOCKER_IMAGE || true"
-                    sh "docker run -d --name $DOCKER_IMAGE --network=host $DOCKER_IMAGE:$DOCKER_TAG"
+                    sh """
+                    docker run -d --name $DOCKER_IMAGE \\
+                        --network=host \\
+                        $DOCKER_IMAGE:$DOCKER_TAG
+                    """
                 }
             }
         }
     }
-
     post {
         always {
             script {

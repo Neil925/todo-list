@@ -15,17 +15,17 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
-  app:
-    build: .
-    container_name: todolist_app
-    depends_on:
-      - db
-    environment:
-      DB_URL: jdbc:mysql://db:3306/todolist
-      DB_USER: root
-      DB_PASSWORD: root
-    ports:
-      - "8080:8080"
+  # app:
+  #   build: .
+  #   container_name: todolist_app
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DB_URL: jdbc:mysql://db:3306/todolist
+  #     DB_USER: root
+  #     DB_PASSWORD: root
+  #   ports:
+  #     - "8080:8080"
 
 volumes:
   db_data:
