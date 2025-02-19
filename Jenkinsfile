@@ -71,7 +71,8 @@ pipeline {
     post {
         always {
             script {
-                sh "docker-compose -f $COMPOSE_FILE down"
+                sh "docker stop $MYSQL_CONTAINER || true"
+                sh "docker rm $MYSQL_CONTAINER || true"
             }
         }
         success {
@@ -80,5 +81,4 @@ pipeline {
         failure {
             echo 'Pipeline failed. Check logs for details.'
         }
-    }
-}
+    }}
