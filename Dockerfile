@@ -1,23 +1,13 @@
-# Use OpenJDK 17 as the base image
-FROM openjdk:17-jdk-slim
+# Use an official OpenJDK runtime as a base image
+FROM openjdk:23-jdk
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy Gradle build files to cache dependencies
-COPY build.gradle settings.gradle gradlew ./
-COPY gradle gradle
-RUN chmod +x gradlew && ./gradlew build || return 0
+# Copy build output (compiled classes, resources, and config)
+COPY app/build/classes/java/main /app/classes
+COPY app/build/resources/main /app/resources
+COPY app/bin/main/hibernate.cfg.xml /app/resources/hibernate.cfg.xml
 
-# Copy the entire project
-COPY . .
-
-# Build the project
-RUN ./gradlew clean build
-
-# Expose port (if the application runs on a specific port)
-EXPOSE 8080
-
-# Run the application
-CMD ["java", "-jar", "build/libs/todolist-1.0.jar"]
-
+# Set the classpath and define the entry point
+CMD ["java", "-cp", "/app/classes:/app/resources", "org.example.App"]
