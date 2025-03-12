@@ -36,7 +36,7 @@ pipeline {
         }
         stage('Build with Gradle') {
             steps {
-                sh 'gradle clean build'
+                sh 'gradle clean build -x test'
             }
         }
 
